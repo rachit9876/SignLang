@@ -74,6 +74,30 @@
             background: white;
             cursor: pointer;
         }
+        .capture-btn {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .capture-btn button {
+            padding: 15px 40px;
+            font-size: 1.1em;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .capture-btn button:hover {
+            background: #764ba2;
+        }
+        #debugInfo {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            font-family: monospace;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -94,6 +118,12 @@
             <img src="{{ url_for('video_feed') }}" alt="Video Feed">
         </div>
         
+        <div class="capture-btn">
+            <button onclick="captureFrame()">Capture & Analyze</button>
+        </div>
+        
+        <div id="debugInfo"></div>
+        
         <div class="info">
             <h3>How to use:</h3>
             <p>Show your hand sign to the camera. The detected letter will appear on the video feed in green text.</p>
@@ -104,6 +134,17 @@
             const cameraId = document.getElementById('cameraSelect').value;
             const img = document.querySelector('.video-container img');
             img.src = `/video_feed?camera=${cameraId}`;
+        }
+        
+        function captureFrame() {
+            const cameraId = document.getElementById('cameraSelect').value;
+            fetch(`/capture?camera=${cameraId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const debugDiv = document.getElementById('debugInfo');
+                    debugDiv.style.display = 'block';
+                    debugDiv.innerHTML = `<strong>Analysis:</strong><br>${data.message}`;
+                });
         }
     </script>
 </body>
