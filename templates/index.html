@@ -7,8 +7,8 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Arial Black', Arial, sans-serif;
+            background: #ffd700;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -16,31 +16,32 @@
             padding: 20px;
         }
         .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            padding: 40px;
-            max-width: 900px;
+            background: #fff;
+            border: 5px solid #000;
+            box-shadow: 12px 12px 0 #000;
+            padding: 30px;
+            max-width: 700px;
             width: 100%;
         }
         h1 {
             text-align: center;
-            color: #333;
+            color: #000;
             margin-bottom: 10px;
-            font-size: 2.5em;
+            font-size: 2em;
+            text-transform: uppercase;
         }
         .subtitle {
             text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 1.1em;
+            color: #000;
+            margin-bottom: 20px;
+            font-size: 1em;
+            font-weight: bold;
         }
         .video-container {
             position: relative;
             width: 100%;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 5px solid #000;
+            box-shadow: 8px 8px 0 #ff6b6b;
         }
         img {
             width: 100%;
@@ -48,19 +49,96 @@
             display: block;
         }
         .info {
-            margin-top: 30px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            border-left: 4px solid #667eea;
+            margin-top: 20px;
+            padding: 15px;
+            background: #4ecdc4;
+            border: 4px solid #000;
+            box-shadow: 6px 6px 0 #000;
         }
         .info h3 {
-            color: #333;
+            color: #000;
             margin-bottom: 10px;
+            font-weight: 900;
         }
         .info p {
-            color: #666;
+            color: #000;
             line-height: 1.6;
+            font-weight: bold;
+        }
+        .text-output {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff;
+            border: 4px solid #000;
+            box-shadow: 6px 6px 0 #000;
+            min-height: 60px;
+            font-size: 1.5em;
+            font-weight: bold;
+            word-wrap: break-word;
+        }
+        .clear-btn {
+            margin-top: 15px;
+            text-align: center;
+        }
+        .clear-btn button {
+            padding: 10px 30px;
+            font-size: 1em;
+            background: #ff6b6b;
+            color: #000;
+            border: 4px solid #000;
+            cursor: pointer;
+            font-weight: 900;
+            text-transform: uppercase;
+            box-shadow: 4px 4px 0 #000;
+            margin: 0 5px;
+        }
+        .help-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .help-btn button {
+            padding: 15px 25px;
+            font-size: 1.2em;
+            background: #4ecdc4;
+            color: #000;
+            border: 4px solid #000;
+            cursor: pointer;
+            font-weight: 900;
+            box-shadow: 4px 4px 0 #000;
+        }
+        .help-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: #fff;
+            border-left: 5px solid #000;
+            box-shadow: -8px 0 0 #000;
+            transition: right 0.3s;
+            z-index: 999;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .help-panel.open {
+            right: 0;
+        }
+        .help-panel img {
+            width: 100%;
+            border: 4px solid #000;
+        }
+        .close-help {
+            padding: 10px 20px;
+            font-size: 1em;
+            background: #ff6b6b;
+            color: #000;
+            border: 4px solid #000;
+            cursor: pointer;
+            font-weight: 900;
+            margin-bottom: 15px;
+            box-shadow: 4px 4px 0 #000;
         }
         .camera-select {
             margin-bottom: 20px;
@@ -69,38 +147,53 @@
         .camera-select select {
             padding: 10px 20px;
             font-size: 1em;
-            border: 2px solid #667eea;
-            border-radius: 8px;
-            background: white;
+            border: 4px solid #000;
+            background: #fff;
             cursor: pointer;
+            font-weight: bold;
+            box-shadow: 4px 4px 0 #000;
         }
-        .capture-btn {
-            margin-top: 20px;
-            text-align: center;
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .container {
+                padding: 20px;
+                border: 3px solid #000;
+                box-shadow: 6px 6px 0 #000;
+            }
+            h1 { font-size: 1.8em; }
+            .subtitle { font-size: 0.9em; }
+            .video-container {
+                border: 3px solid #000;
+                box-shadow: 4px 4px 0 #ff6b6b;
+            }
+            .info {
+                padding: 15px;
+                border: 3px solid #000;
+                box-shadow: 4px 4px 0 #000;
+            }
+            .camera-select select {
+                padding: 8px 15px;
+                font-size: 0.9em;
+                border: 3px solid #000;
+                box-shadow: 3px 3px 0 #000;
+            }
         }
-        .capture-btn button {
-            padding: 15px 40px;
-            font-size: 1.1em;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        .capture-btn button:hover {
-            background: #764ba2;
-        }
-        #debugInfo {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f0f0f0;
-            border-radius: 8px;
-            font-family: monospace;
-            display: none;
-        }
+
+
+
     </style>
 </head>
 <body>
+    <div class="help-btn">
+        <button onclick="toggleHelp()">? HELP</button>
+    </div>
+    
+    <div class="help-panel" id="helpPanel">
+        <button class="close-help" onclick="toggleHelp()">✕ CLOSE</button>
+        <h2 style="margin-bottom: 15px;">ASL Reference</h2>
+        <img src="/imgs/asl_preview.jpg" alt="ASL Guide">
+    </div>
+    
     <div class="container">
         <h1>🤟 ASL Recognition</h1>
         <p class="subtitle">Real-time American Sign Language Detection</p>
@@ -118,15 +211,17 @@
             <img src="{{ url_for('video_feed') }}" alt="Video Feed">
         </div>
         
-        <div class="capture-btn">
-            <button onclick="captureFrame()">Capture & Analyze</button>
-        </div>
+
         
-        <div id="debugInfo"></div>
+        <div class="text-output" id="textOutput"></div>
+        <div class="clear-btn">
+            <button onclick="backspace()">⌫ BACK</button>
+            <button onclick="clearText()">CLEAR</button>
+        </div>
         
         <div class="info">
             <h3>How to use:</h3>
-            <p>Show your hand sign to the camera. The detected letter will appear on the video feed in green text.</p>
+            <p>Hold a sign for 3 seconds to add it to the text box above.</p>
         </div>
     </div>
     <script>
@@ -136,16 +231,26 @@
             img.src = `/video_feed?camera=${cameraId}`;
         }
         
-        function captureFrame() {
-            const cameraId = document.getElementById('cameraSelect').value;
-            fetch(`/capture?camera=${cameraId}`)
+        function clearText() {
+            fetch('/clear_text', {method: 'POST'});
+            document.getElementById('textOutput').textContent = '';
+        }
+        
+        function backspace() {
+            fetch('/backspace', {method: 'POST'});
+        }
+        
+        function toggleHelp() {
+            document.getElementById('helpPanel').classList.toggle('open');
+        }
+        
+        setInterval(() => {
+            fetch('/get_text')
                 .then(response => response.json())
                 .then(data => {
-                    const debugDiv = document.getElementById('debugInfo');
-                    debugDiv.style.display = 'block';
-                    debugDiv.innerHTML = `<strong>Analysis:</strong><br>${data.message}`;
+                    document.getElementById('textOutput').textContent = data.text;
                 });
-        }
+        }, 500);
     </script>
 </body>
 </html>
