@@ -4,8 +4,10 @@ import mediapipe as mp
 import numpy as np
 import time
 from flask import Flask, render_template, Response, request, jsonify, send_from_directory
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 model = pickle.load(open('./model.p', 'rb'))['model']
 mp_hands = mp.solutions.hands
@@ -72,6 +74,10 @@ def generate_frames(camera_id=0):
 def index():
     return render_template('index.html')
 
+@app.route('/health')
+def health():
+    return jsonify({'status': 'ok', 'message': 'Backend is running'})
+
 @app.route('/imgs/<path:filename>')
 def serve_image(filename):
     return send_from_directory('imgs', filename)
@@ -98,4 +104,4 @@ def backspace():
     return jsonify({'status': 'ok'})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False, threaded=True)

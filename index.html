@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASL Recognition</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Arial Black', Arial, sans-serif;
+            background: #ffd700;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: #fff;
+            border: 5px solid #000;
+            box-shadow: 12px 12px 0 #000;
+            padding: 25px;
+            max-width: 600px;
+            width: 100%;
+            transition: transform 0.3s;
+        }
+        body.help-open .container {
+            transform: translateX(-17.5%);
+        }
+        h1 {
+            text-align: center;
+            color: #000;
+            margin-bottom: 8px;
+            font-size: 1.6em;
+            text-transform: uppercase;
+        }
+        .subtitle {
+            text-align: center;
+            color: #000;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .backend-config {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #ffe066;
+            border: 3px solid #000;
+            box-shadow: 4px 4px 0 #000;
+        }
+        .backend-config input {
+            width: calc(100% - 100px);
+            padding: 8px;
+            border: 3px solid #000;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        .backend-config button {
+            padding: 8px 15px;
+            background: #4ecdc4;
+            border: 3px solid #000;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 3px 3px 0 #000;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .status-online { background: #00ff00; }
+        .status-offline { background: #ff0000; }
+        .video-container {
+            position: relative;
+            width: 100%;
+            border: 5px solid #000;
+            box-shadow: 8px 8px 0 #ff6b6b;
+            background: #000;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .video-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .video-placeholder {
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            font-weight: bold;
+        }
+        .info {
+            margin-top: 15px;
+            padding: 12px;
+            background: #4ecdc4;
+            border: 4px solid #000;
+            box-shadow: 6px 6px 0 #000;
+        }
+        .info h3 {
+            font-size: 1em;
+            color: #000;
+            margin-bottom: 10px;
+            font-weight: 900;
+        }
+        .info p {
+            font-size: 0.9em;
+            color: #000;
+            line-height: 1.6;
+            font-weight: bold;
+        }
+        .text-output {
+            margin-top: 15px;
+            padding: 12px;
+            background: #fff;
+            border: 4px solid #000;
+            box-shadow: 6px 6px 0 #000;
+            min-height: 50px;
+            font-size: 1.2em;
+            font-weight: bold;
+            word-wrap: break-word;
+        }
+        .text-output::after {
+            content: '|';
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        .clear-btn {
+            margin-top: 15px;
+            text-align: center;
+        }
+        .clear-btn button {
+            padding: 10px 30px;
+            font-size: 1em;
+            background: #ff6b6b;
+            color: #000;
+            border: 4px solid #000;
+            cursor: pointer;
+            font-weight: 900;
+            text-transform: uppercase;
+            box-shadow: 4px 4px 0 #000;
+            margin: 0 5px;
+        }
+        .clear-btn button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .help-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .help-btn button {
+            padding: 8px 15px;
+            font-size: 0.9em;
+            background: #4ecdc4;
+            color: #000;
+            border: 3px solid #000;
+            cursor: pointer;
+            font-weight: 900;
+            box-shadow: 3px 3px 0 #000;
+        }
+        .help-panel {
+            position: fixed;
+            top: 0;
+            right: -35%;
+            width: 35%;
+            height: 100vh;
+            background: #fff;
+            border-left: 5px solid #000;
+            box-shadow: -8px 0 0 #000;
+            transition: right 0.3s;
+            z-index: 999;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .help-panel.open {
+            right: 0;
+        }
+        .help-panel img {
+            width: 100%;
+            height: auto;
+            border: 4px solid #000;
+        }
+        .close-help {
+            padding: 10px 20px;
+            font-size: 1em;
+            background: #ff6b6b;
+            color: #000;
+            border: 4px solid #000;
+            cursor: pointer;
+            font-weight: 900;
+            margin-bottom: 15px;
+            box-shadow: 4px 4px 0 #000;
+        }
+        .camera-select {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .camera-select select {
+            padding: 10px 20px;
+            font-size: 1em;
+            border: 4px solid #000;
+            background: #fff;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 4px 4px 0 #000;
+        }
+        #errorNotification {
+            display: none;
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: #ff6b6b;
+            color: #000;
+            padding: 15px 20px;
+            border: 4px solid #000;
+            box-shadow: 6px 6px 0 #000;
+            font-weight: 900;
+            z-index: 1001;
+            max-width: 300px;
+        }
+        #loader {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .container {
+                padding: 20px;
+                border: 3px solid #000;
+                box-shadow: 6px 6px 0 #000;
+            }
+            h1 { font-size: 1.8em; }
+            .subtitle { font-size: 0.9em; }
+            .video-container {
+                border: 3px solid #000;
+                box-shadow: 4px 4px 0 #ff6b6b;
+            }
+            .info {
+                padding: 15px;
+                border: 3px solid #000;
+                box-shadow: 4px 4px 0 #000;
+            }
+            .camera-select select {
+                padding: 8px 15px;
+                font-size: 0.9em;
+                border: 3px solid #000;
+                box-shadow: 3px 3px 0 #000;
+            }
+            .backend-config input {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            .backend-config button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="errorNotification"></div>
+    
+    <div class="help-btn">
+        <button onclick="toggleHelp()">? HELP</button>
+    </div>
+    
+    <div class="help-panel" id="helpPanel">
+        <button class="close-help" onclick="toggleHelp()">✕ CLOSE</button>
+        <h2 style="margin-bottom: 15px;">ASL Reference</h2>
+        <img src="imgs/asl_preview.jpg" alt="ASL Guide">
+    </div>
+    
+    <div class="container">
+        <h1>🤟 ASL Recognition</h1>
+        <p class="subtitle">Real-time American Sign Language Detection</p>
+        
+        <div class="backend-config">
+            <div style="margin-bottom: 8px; font-weight: bold;">
+                <span class="status-indicator" id="statusIndicator"></span>
+                <span id="statusText">Backend Status</span>
+            </div>
+            <input type="text" id="backendURL" placeholder="https://xxxxx.trycloudflare.com">
+            <button onclick="updateBackend()">SET</button>
+        </div>
+        
+        <div class="camera-select">
+            <select id="cameraSelect" onchange="changeCamera()">
+                <option value="0">Camera 0 (Default)</option>
+                <option value="1">Camera 1</option>
+                <option value="2">Camera 2</option>
+                <option value="3">Camera 3</option>
+            </select>
+        </div>
+        
+        <div class="video-container">
+            <div id="loader">Loading...</div>
+            <img id="videoFeed" style="display:none;" alt="Video Feed">
+            <div class="video-placeholder" id="placeholder">
+                Connect to backend to start video feed
+            </div>
+        </div>
+        
+        <div class="text-output" id="textOutput"></div>
+        <div class="clear-btn">
+            <button onclick="backspace()" id="backBtn">⌫ BACK</button>
+            <button onclick="clearText()" id="clearBtn">CLEAR</button>
+        </div>
+        
+        <div class="info">
+            <h3>How to use:</h3>
+            <p>1. Enter your Cloudflare tunnel URL above<br>
+            2. Hold a sign for 3 seconds to add it to the text box<br>
+            3. Use BACK to remove last character or CLEAR to reset</p>
+        </div>
+    </div>
+    
+    <script src="api.js"></script>
+    <script>
+        let textUpdateInterval = null;
+        let healthCheckInterval = null;
+        
+        // Initialize on page load
+        window.onload = function() {
+            const savedURL = loadBackendURL();
+            document.getElementById('backendURL').value = savedURL;
+            updateBackend();
+        };
+        
+        // Update backend URL and test connection
+        async function updateBackend() {
+            const url = document.getElementById('backendURL').value.trim();
+            if (!url) {
+                showError('Please enter a backend URL');
+                return;
+            }
+            
+            setBackendURL(url);
+            setLoading(true);
+            
+            const online = await testAPI();
+            updateStatus(online);
+            setLoading(false);
+            
+            if (online) {
+                startVideoFeed();
+                startTextUpdates();
+                startHealthCheck();
+            } else {
+                showError('Backend is offline. Please check the URL.');
+                stopVideoFeed();
+                stopTextUpdates();
+            }
+        }
+        
+        // Update status indicator
+        function updateStatus(online) {
+            const indicator = document.getElementById('statusIndicator');
+            const text = document.getElementById('statusText');
+            
+            if (online) {
+                indicator.className = 'status-indicator status-online';
+                text.textContent = 'Backend Online';
+            } else {
+                indicator.className = 'status-indicator status-offline';
+                text.textContent = 'Backend Offline';
+            }
+        }
+        
+        // Start video feed
+        function startVideoFeed() {
+            const cameraId = document.getElementById('cameraSelect').value;
+            const img = document.getElementById('videoFeed');
+            const placeholder = document.getElementById('placeholder');
+            
+            img.src = getVideoFeedURL(cameraId);
+            img.style.display = 'block';
+            placeholder.style.display = 'none';
+            
+            img.onerror = function() {
+                showError('Failed to load video feed');
+                img.style.display = 'none';
+                placeholder.style.display = 'block';
+                placeholder.textContent = 'Video feed unavailable';
+            };
+        }
+        
+        // Stop video feed
+        function stopVideoFeed() {
+            const img = document.getElementById('videoFeed');
+            const placeholder = document.getElementById('placeholder');
+            
+            img.src = '';
+            img.style.display = 'none';
+            placeholder.style.display = 'block';
+            placeholder.textContent = 'Connect to backend to start video feed';
+        }
+        
+        // Change camera
+        function changeCamera() {
+            if (isBackendOnline) {
+                startVideoFeed();
+            }
+        }
+        
+        // Start periodic text updates
+        function startTextUpdates() {
+            stopTextUpdates();
+            textUpdateInterval = setInterval(async () => {
+                try {
+                    const data = await getText();
+                    document.getElementById('textOutput').textContent = data.text || '';
+                } catch (error) {
+                    // Silently fail - health check will handle reconnection
+                }
+            }, 500);
+        }
+        
+        // Stop text updates
+        function stopTextUpdates() {
+            if (textUpdateInterval) {
+                clearInterval(textUpdateInterval);
+                textUpdateInterval = null;
+            }
+        }
+        
+        // Start health check
+        function startHealthCheck() {
+            if (healthCheckInterval) clearInterval(healthCheckInterval);
+            
+            healthCheckInterval = setInterval(async () => {
+                const online = await testAPI();
+                updateStatus(online);
+                
+                if (!online) {
+                    showError('Lost connection to backend');
+                    stopVideoFeed();
+                    stopTextUpdates();
+                }
+            }, 5000);
+        }
+        
+        // Clear text
+        async function clearText() {
+            try {
+                setLoading(true);
+                await clearText();
+                document.getElementById('textOutput').textContent = '';
+                setLoading(false);
+            } catch (error) {
+                setLoading(false);
+                showError('Failed to clear text');
+            }
+        }
+        
+        // Backspace
+        async function backspace() {
+            try {
+                setLoading(true);
+                await backspaceText();
+                setLoading(false);
+            } catch (error) {
+                setLoading(false);
+                showError('Failed to backspace');
+            }
+        }
+        
+        // Toggle help panel
+        function toggleHelp() {
+            document.getElementById('helpPanel').classList.toggle('open');
+            document.body.classList.toggle('help-open');
+        }
+    </script>
+</body>
+</html>
